@@ -1,0 +1,64 @@
+#!C:\Users\TDG_ENG\Python_test\fastapi_scrapy\venv\Scripts\python.exe
+# PYTHON_ARGCOMPLETE_OK
+
+import os
+import sys
+import json
+import argparse
+import argcomplete
+import logging
+
+from asd.custom_completion_finder import custom_auto_complete
+from asd.json_browser import JSONBrowser
+from asd.openvpn_manage import OpenVPNManager
+from asd.register import Register
+from asd.tool import ToolHelper
+from asd import config, system_config
+from voidpp_tools.colors import ColoredLoggerFormatter
+
+user_config_data = config.load_config()
+system_config_data = system_config.load_config()
+
+# debug flag taken from environment due logging from bash completion handlers
+debug = '_ASD_DEBUG' in os.environ
+# TODO: logger config from app user_config_data
+
+logger = logging.root
+
+if debug:
+    logger_handler = logging.FileHandler('asd.log')
+    logger_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(logger_handler)
+    logger.setLevel(logging.DEBUG)
+
+logger_handler_info = logging.StreamHandler(sys.stdout)
+logger_handler_info.setFormatter(ColoredLoggerFormatter(debug = False))
+logger.addHandler(logger_handler_info)
+logger.setLevel(logging.INFO)
+
+parser = argparse.ArgumentParser()
+
+tools = [
+    JSONBrowser(),
+    Register(),
+    OpenVPNManager(),
+]
+
+if 'external_tools' in system_config_data:
+    tools += ToolHelper.load_external_tools(
+        system_config_data['external_tools'],
+        user_config_data['external_tools'] if 'external_tools' in user_config_data else {},
+    )
+
+name2tool = {}
+
+subparser = parser.add_subparsers(dest = 'command')
+
+for tool in tools:
+    name2tool[tool.name] = tool
+    tool.register(subparser.add_parser(tool.name, help = tool.desc))
+
+custom_auto_complete(parser)
+args = parser.parse_args()
+
+name2tool[args.command].process(args)

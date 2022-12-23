@@ -1,0 +1,3 @@
+pip freeze > requirements.txt
+gcloud config set project hai-tag-system
+gcloud run deploy web-scrapy-text --service-account web-scrapy@hai-tag-system.iam.gserviceaccount.com --region=asia-east1 --source .
