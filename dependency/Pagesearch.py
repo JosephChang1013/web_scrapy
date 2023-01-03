@@ -69,7 +69,7 @@ def creat_path(
             return file_path
 
         if path == '':
-            file_path = f"{target}/{domain}/{sub_domain}/index.{extension}"
+            file_path = f"{target}/{domain}/{sub_domain}/{date.today()}.{extension}"
             return file_path
 
     if not request_urls:
@@ -95,3 +95,15 @@ def entry_date(start_date, end_date):
     start_date = date(year, month, day)
     end_date = date(year2, month2, day2)
     return start_date, end_date
+
+
+def find_domain(url: str) -> str:
+    domain = urlparse(f"{url}").netloc[4:-4]
+    return domain
+
+
+def today_date() -> date:
+    now = datetime.now()
+    today = now.date()
+    return today
+

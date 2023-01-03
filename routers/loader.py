@@ -28,7 +28,7 @@ async def web_scraper(
             response.status_code = status.HTTP_400_BAD_REQUEST
             return BaseResponse(success=False, error_msg='request_url error', result=None)
         if request_urls:
-            file_path = creat_path(request_urls)
+            file_path = creat_path(request_urls, sub_domain='content')
             blob = bucket.blob(file_path)
             if blob.exists():
                 if (datetime.utcnow().replace(tzinfo=None) - blob_metadata(bucket_name, blob)).days > 30:

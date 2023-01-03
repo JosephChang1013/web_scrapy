@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-
+from enum import Enum
 from pydantic import BaseModel
 
 from google.cloud import storage
@@ -14,10 +14,17 @@ class BaseResponse(BaseModel):
     news_data: Optional[list]
 
 
-class SearchDomain:
-    ETtoday = 'tool/ETtoday_www.ettoday.net_content_index.txt'
-    Nownews = 'tool/now_news.jsonl'
-    Udnnews = 'tool/udn_news.jsonl'
+class BqAccountRawText(BaseModel):
+    account_id: Optional[str] = None
+    raw_text: Optional[str] = None
+    raw_text_zh_en: Optional[str] = None
+
+
+class DomainName(str, Enum):
+    ETTODAY = 'ettoday'
+    NOWNEWS = 'nownews'
+    UDNNEWS = 'udn'
+    CHINATIME = 'chinatimes'
 
 
 def set_blob_metadata(bucket_name, blob):

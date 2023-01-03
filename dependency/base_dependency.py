@@ -3,6 +3,8 @@ from google.cloud import logging, storage
 GCP_PROJECT_ID = 'hai-tag-system'
 SERVICE_ACCOUNT = 'web-scrapy@hai-tag-system.iam.gserviceaccount.com'
 REPOSITORY_NAME = 'web_crawl_cloud'
+DATASET_TA_SYSTEM = 'ta_system'
+TABLE_AD_ACCOUNT_RAW_TEXTS = 'ad_account_raw_texts'
 
 LISTENING_TIMEOUT = 5.0
 
