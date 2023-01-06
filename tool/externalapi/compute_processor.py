@@ -22,11 +22,20 @@ sudo apt install -yq python3-pip
 sudo apt install -yq python3-distutils
 sudo apt install -yq git
 
+
+# for selenium use install chrome 
+sudo apt install -yq wget
+sudo apt install -yq chromium-driver
+wget -c https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+sudo apt-get install -f
+
 # Fetch source code
 sudo gcloud source repos clone {REPOSITORY_NAME} --project={GCP_PROJECT_ID}
 
 # Install Cloud Ops Agent (logging)
-#sudo bash /opt/fb_data_loader/add-google-cloud-ops-agent-repo.sh --also-install
+curl -sSO https://dl.google.com/cloudagents/add-logging-agent-repo.sh
+sudo bash add-logging-agent-repo.sh --also-install
 
 # Python environment setup
 sudo pip3 install -r /{REPOSITORY_NAME}/requirements.txt
@@ -37,7 +46,7 @@ export ZONE=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/ins
 # Run python
 sudo python3 /{REPOSITORY_NAME}/{main_filename}
 
-# sudo gcloud --quiet compute instances delete $NAME --zone=$ZONE
+sudo gcloud --quiet compute instances delete $NAME --zone=$ZONE
 '''
 
 
@@ -141,6 +150,9 @@ def list_all_instances(
         instance_name=None,
         program_label=None,
 ) -> List[compute_v1.Instance]:
+
+
+
     """
     status: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED
     """

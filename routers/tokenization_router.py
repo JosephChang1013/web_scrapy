@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Query
 from dependency.base_dependency import REQUEST_KEY
-from tokenization_v2 import tokenization_data
+from crawl_script.tokenization_v2 import tokenization_data
 from model.base_model import BaseResponse, DomainName
 from datetime import date
 

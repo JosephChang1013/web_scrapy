@@ -15,6 +15,7 @@ def web_scraper_udnnews(request_key: str):
     if request_key != REQUEST_KEY:
         raise HTTPException(status_code=400, detail="bad request key")
     start_crawl_udn()
+    return 'start success'
 
 
 def start_crawl_udn():

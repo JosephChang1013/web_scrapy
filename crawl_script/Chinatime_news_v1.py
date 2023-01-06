@@ -1,9 +1,8 @@
 import random
 import time
-from typing import List, Dict, Any
-
 import requests
-import pandas as pd
+
+from typing import List, Dict, Any
 from datetime import datetime
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent

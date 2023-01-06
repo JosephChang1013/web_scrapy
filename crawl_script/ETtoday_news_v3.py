@@ -5,20 +5,17 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from fake_useragent import UserAgent
 from datetime import datetime, timedelta
-
 from selenium.common import exceptions
-
+from selenium.webdriver.chrome.service import Service
 from dependency.Pagesearch import find_domain, today_date
 from typing import List, Dict, Any
 from selenium.webdriver.chrome.options import Options
 from tool.externalapi.bigquery_processor import bq_log_metrics
+from webdriver_manager.chrome import ChromeDriverManager
 
 base_url = "https://www.ettoday.net"
 domain = find_domain(base_url)
 today = today_date()
-
-options = Options()
-options.add_argument("--disable-notifications")
 
 
 def start_scraper_ettoday_v3():
@@ -29,7 +26,13 @@ def start_scraper_ettoday_v3():
     url = f"https://www.ettoday.net/news/news-list-{year}-{month}-{day}-0.htm"
     date_range_ago = (datetime.now() - timedelta(days=date_ranges))
     result_list: List[Dict[str, Any]] = list()
-    browser = webdriver.Chrome('../chromedriver', chrome_options=options)
+    options = Options()
+    options.add_argument('headless')
+    options.add_argument('--disable-infobars')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--remote-debugging-port=9222')
+    browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     print("Current session is {}".format(browser.session_id))
     try:
         browser.get(url)
@@ -105,5 +108,6 @@ def start_scraper_ettoday_v3():
 
 if __name__ == '__main__':
     result_lists = start_scraper_ettoday_v3()
-    print(result_lists[0])
+    print('saving to BQ')
     bq_log_metrics(today, domain, result_lists)
+    print('accompleted job')
