@@ -3,7 +3,8 @@ import random
 import requests
 
 from datetime import datetime
-from dependency.Pagesearch import today_date, find_domain
+from dependency.Pagesearch import today_date
+from model.base_model import DomainName
 from tool.externalapi.bigquery_processor import bq_log_metrics
 
 HEADERS = {
@@ -12,7 +13,7 @@ HEADERS = {
 
 base_url = 'https://www.udn.com'
 
-domain = find_domain(base_url)
+domain = DomainName.UDNNEWS.value
 today = today_date()
 
 

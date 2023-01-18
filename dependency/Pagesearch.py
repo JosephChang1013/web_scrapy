@@ -97,11 +97,6 @@ def entry_date(start_date, end_date):
     return start_date, end_date
 
 
-def find_domain(url: str) -> str:
-    domain = urlparse(f"{url}").netloc[4:-4]
-    return domain
-
-
 def today_date() -> date:
     now = datetime.now()
     today = now.date()

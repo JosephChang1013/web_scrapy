@@ -2,31 +2,27 @@ import time
 import requests
 
 from bs4 import BeautifulSoup
+from selenium import webdriver
 from fake_useragent import UserAgent
 from datetime import datetime, timedelta
-from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 from dependency.Pagesearch import today_date
 from typing import List, Dict, Any
+from selenium.webdriver.chrome.options import Options
 
 from model.base_model import DomainName
 from tool.externalapi.bigquery_processor import bq_log_metrics
+from webdriver_manager.chrome import ChromeDriverManager
 
-
-base_url = "https://www.ettoday.net"
-domain = DomainName.ETTODAY.value
+base_url = "https://news.tvbs.com.tw"
+domain = DomainName.TVBSNEWS.value
 today = today_date()
 
 
-def start_scraper_ettoday_v3():
-    year = today.year
-    month = today.month
-    day = today.day
+def start_scraper_tvbs_v1():
+    url = "https://news.tvbs.com.tw/realtime"
     date_ranges = 1
-    url = f"https://www.ettoday.net/news/news-list-{year}-{month}-{day}-0.htm"
     date_range_ago = (datetime.now() - timedelta(days=date_ranges))
     result_list: List[Dict[str, Any]] = list()
     options = Options()
@@ -58,15 +54,12 @@ def start_scraper_ettoday_v3():
                 break
             last_height = new_height
             time.sleep(1)
-            for f in soup.find(class_="part_list_2").find_all('h3'):
-                if datetime.strptime(f.find(class_="date").text, '%Y/%m/%d %H:%M') < date_range_ago:
-                    print(f"已經超出{date_range_ago}，程序停止")
-
-                    go = False
-                    break
-
-                else:
-                    print("目前畫面最下方文章的日期時間為：", f.find_all(class_="date")[-1].text)
+            for f in soup.find(class_="news_list").find(class_="list").find_all('li'):
+                if f:
+                    try:
+                        print("目前畫面最下方文章的日期時間為：", f.find('div', class_='time').text)
+                    except:
+                        pass
         time.sleep(2)
 
         # 爬取已經拓展完的頁面
@@ -84,25 +77,28 @@ def start_scraper_ettoday_v3():
 
         print("Session {} closed".format(browser.session_id))
         soup = BeautifulSoup(html_source, "lxml")
-        for d in soup.find(class_="part_list_2").find_all('h3'):
-            if date_range_ago in d.select(".date"):
-                pass
-            else:
-                print(d.find(class_="date").text, d.find_all('a')[-1].text)
-                news = {"date": datetime.strptime(d.find(class_="date").text, "%Y/%m/%d %H:%M").isoformat(),
-                        "title": d.find_all('a')[-1].text,
-                        "link": base_url + d.find_all('a')[-1]["href"],
-                        "category": d.find("em").text,
-                        "log_datetime": datetime.now().isoformat()
-                        }
-                rep = requests.get(news['link'], headers=headers)
-                sub_soup = BeautifulSoup(rep.text, 'lxml')
-                content = [(i.get_text()).strip() for i in sub_soup.select("div.story > p ")]
-                content = ''.join(content)
-                news["content"] = content
-                result_list.append(news)
-                time.sleep(1)
-
+        for d in soup.find(class_="news_list").find(class_="list").find_all('li'):
+            if d:
+                try:
+                    if date_range_ago in d.find('div', class_='time'):
+                        pass
+                    else:
+                        print(d.find('div', class_='time').text, d.find_all('a')[0].text)
+                        news = {"date": datetime.strptime(datetime.now().strftime("%Y-%m-%d %H:%M"), "%Y-%m-%d %H:%M").isoformat(),
+                                "title": d.find('h2', class_='txt').text,
+                                "link": base_url + d.find('a')['href'],
+                                "category": d.find(class_="type").text,
+                                "log_datetime": datetime.now().isoformat(),
+                                }
+                        rep = requests.get(news['link'], headers=headers)
+                        sub_soup = BeautifulSoup(rep.text, 'lxml')
+                        content = [(i.get_text()).strip() for i in sub_soup.select("div.article_content > p ")]
+                        content = ''.join(content)
+                        news["content"] = content
+                        result_list.append(news)
+                        time.sleep(1)
+                except:
+                    pass
     except Exception as e:
         print("Error", e)
 
@@ -110,7 +106,7 @@ def start_scraper_ettoday_v3():
 
 
 if __name__ == '__main__':
-    result_lists = start_scraper_ettoday_v3()
-    print('saving to BQ')
+    result_lists = start_scraper_tvbs_v1()
+    print('saving to BQ', result_lists[0])
     bq_log_metrics(today, domain, result_lists)
     print('accompleted job')

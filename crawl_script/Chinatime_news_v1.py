@@ -6,11 +6,12 @@ from typing import List, Dict, Any
 from datetime import datetime
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-from dependency.Pagesearch import find_domain, today_date
+from dependency.Pagesearch import today_date
+from model.base_model import DomainName
 from tool.externalapi.bigquery_processor import bq_log_metrics
 
 base_url = "https://www.chinatimes.com"
-domain = find_domain(base_url)
+domain = DomainName.CHINATIME.value
 today = today_date()
 
 

@@ -4,7 +4,8 @@ import requests
 
 from typing import List, Dict, Any
 from datetime import datetime
-from dependency.Pagesearch import find_domain, today_date
+from dependency.Pagesearch import today_date
+from model.base_model import DomainName
 from tool.externalapi.bigquery_processor import bq_log_metrics
 
 HEADERS = {
@@ -12,7 +13,7 @@ HEADERS = {
 }
 
 base_url = 'https://www.nownews.com'
-domain = find_domain(base_url)
+domain = DomainName.NOWNEWS.value
 today = today_date()
 
 
