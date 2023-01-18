@@ -21,3 +21,7 @@ using wordcloud to visualization for user further action</p>
 
 <br>
 repositories , cloud run website: https://web-scrapy-text-ei5vjqqtla-de.a.run.app/docs
+<br>
+user:haitech
+<br>
+password:haitech
