@@ -31,8 +31,8 @@ def dcard_crawl():
     result_list: List[Dict[str, Any]] = list()
     prev_ele = None
     num = 0
-    while num < 5:
-        time.sleep(random.uniform(10, 15))
+    while num < 3:
+        time.sleep(random.uniform(30, 50))
         html_source = browser.page_source
         soup = BeautifulSoup(html_source, "lxml")
         eles = soup.find(class_='atm_26_7ak79m w1y4fxrl').find_all("article")
@@ -83,7 +83,7 @@ def dcard_crawl_content(result_list):
             print("Current session is {}".format(browser.session_id))
             html_source = browser.page_source
             sub_soup = BeautifulSoup(html_source, "lxml")
-            time.sleep(random.uniform(8, 12))
+            time.sleep(random.uniform(30, 50))
             content = [(i.get_text()).strip() for i in
                        sub_soup.find(class_="atm_c8_exct8b atm_g3_1f4h9lt atm_7l_1u09hbr c1h57ajp").find_all("span")]
             content = ''.join(content)
@@ -98,7 +98,7 @@ def dcard_crawl_content(result_list):
 
             result_list = json.dumps(result_json)
             browser.close()
-            time.sleep(random.uniform(10, 15))
+            time.sleep(random.uniform(30, 50))
     except Exception as e:
         print(e)
         pass

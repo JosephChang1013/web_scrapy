@@ -19,13 +19,13 @@ def get_proxy():
             # print(f"{ip} invalid")
             pass
 
-    with open('proxy_list.txt', 'w') as file:
+    with open('../proxy_list.txt', 'w') as file:
         for ip in valid_ips:
             file.write(ip + '\n')
 
 
 def get_proxy_list():
-    with open('proxy_list.txt', 'r') as f:
+    with open('tool/proxy_list.txt', 'r') as f:
         data = f.read().split('\n')
     return data
 
