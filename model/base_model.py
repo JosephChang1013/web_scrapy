@@ -10,7 +10,7 @@ class BaseResponse(BaseModel):
     success: bool
     error_msg: str
     dict_data: Optional[dict]
-    result: Optional[str]
+    result: Optional[tuple]
     news_data: Optional[list]
 
 
@@ -25,6 +25,9 @@ class DomainName(str, Enum):
     NOWNEWS = 'nownews'
     UDNNEWS = 'udn'
     CHINATIME = 'chinatimes'
+    TVBSNEWS = 'tvbs'
+    DCARD = 'dcard'
+    PTT = 'ptt'
 
 
 def set_blob_metadata(bucket_name, blob):

@@ -16,12 +16,12 @@ def get_proxy():
             print(result.json())
             valid_ips.append(ip)
         except:
-            # print(f"{ip} invalid")
+            print(f"{ip} invalid")
             pass
-
-    with open('../proxy_list.txt', 'w') as file:
-        for ip in valid_ips:
-            file.write(ip + '\n')
+    return valid_ips
+    # with open('../proxy_list.txt', 'w') as file:
+    #     for ip in valid_ips:
+    #         file.write(ip + '\n')
 
 
 def get_proxy_list():
