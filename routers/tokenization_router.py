@@ -10,11 +10,13 @@ tokenization_router = APIRouter()
 schedule_path = '/tokenization'
 
 start = date.today().isoformat()
+topk_num = 20
 
 
 @tokenization_router.post(schedule_path, response_model=BaseResponse)
 def word_tokenization(request_key: str,
                       keyword: str = None,
+                      topk: int = topk_num,
                       start_date: date = start,
                       end_date: date = start,
                       domains: List[DomainName] = Query(default=[])
@@ -28,7 +30,7 @@ def word_tokenization(request_key: str,
     if start_date > end_date:
         return BaseResponse(success=False, error_msg="start_date can not bigger than end_date", result=None)
 
-    count_dic, news_data, tfidf_fre = tokenization_data(keyword, start_date, end_date,
+    count_dic, news_data, tfidf_fre = tokenization_data(keyword, topk, start_date, end_date,
                                                         [domain.value for domain in domains])
     bar, wordcloid = tfidf_fre_for_bar(tfidf_fre, start_date, end_date), tfidf_fre_for_wordcloud(count_dic)
     result = bar, wordcloid

@@ -97,8 +97,17 @@ def entry_date(start_date, end_date):
     return start_date, end_date
 
 
+def creat_url_list():
+    start_date = input('Enter a start date in YYYY-MM-DD format')
+    end_date = input('Enter a end date in YYYY-MM-DD format')
+    start_date, end_date = entry_date(start_date, end_date)
+    date_ranges = (end_date - start_date).days
+    x = [y for y in date_range(start_date, end_date, time_increment=1)]
+    url_list = [f"https://www.ettoday.net/news/news-list-{i.year}-{i.month}-{i.day}-0.htm" for i in x]
+    return url_list, date_ranges
+
+
 def today_date() -> date:
     now = datetime.now()
     today = now.date()
     return today
-

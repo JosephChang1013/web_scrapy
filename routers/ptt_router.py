@@ -24,4 +24,4 @@ def start_crawl_ptt():
         logging.info('crawl already active')
         return
     logging.info('try activate crawl')
-    create_an_instance(instance_name, 'Ptt_v1.py', description='crawl from web_site')
+    create_an_instance(instance_name, 'Ptt_v2.py', description='crawl from web_site')

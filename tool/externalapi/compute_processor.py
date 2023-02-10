@@ -44,7 +44,7 @@ export NAME=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/ins
 export ZONE=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/instance/zone -H 'Metadata-Flavor: Google')
 
 # Run python
-sudo python3 /{REPOSITORY_NAME}/{main_filename}
+sudo python3 /{REPOSITORY_NAME}/{main_filename}   
 
 sudo gcloud --quiet compute instances delete $NAME --zone=$ZONE
 '''
