@@ -136,7 +136,6 @@ def ptt_crawl():
     return result_list
 
 
-#
 if __name__ == '__main__':
     result_lists = ptt_crawl()
     print('total count: ', len(result_lists))

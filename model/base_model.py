@@ -11,7 +11,7 @@ class BaseResponse(BaseModel):
     error_msg: str
     dict_data: Optional[dict]
     result: Optional[tuple]
-    news_data: Optional[list]
+    json_data: Optional[list]
 
 
 class BqAccountRawText(BaseModel):
@@ -28,6 +28,7 @@ class DomainName(str, Enum):
     TVBSNEWS = 'tvbs'
     DCARD = 'dcard'
     PTT = 'ptt'
+    FACEBOOK = 'facebook'
 
 
 def set_blob_metadata(bucket_name, blob):
