@@ -31,9 +31,9 @@ def word_tokenization(request_key: str,
         return BaseResponse(success=False, error_msg="start_date can not bigger than end_date", result=None)
 
     if keyword:
-        count_dic, json_data, tfidf_fre = tokenization_data(keyword, topk, start_date, end_date,
-                                                            [domain.value for domain in domains])
+        count_dic, json_data, sentence = tokenization_data(keyword, topk, start_date, end_date,
+                                                           [domain.value for domain in domains])
 
         return BaseResponse(success=True, error_msg='start success', dict_data=count_dic, result=None,
-                            json_data=json_data)
+                            json_data=json_data, keyword_list=sentence)
     return BaseResponse(success=False, error_msg="keyword must key in", result=None)

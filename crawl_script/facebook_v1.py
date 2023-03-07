@@ -26,7 +26,8 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
     date_range_ago = datetime.today() - timedelta(days=date_range)
     for url in urls:
         options = Options()
-        options.add_argument('headless')
+        # options.add_argument('headless')
+        options.add_experimental_option('prefs', {'intl.accept_languages': 'en,en_US'})
         options.add_argument('--disable-infobars')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
@@ -43,7 +44,7 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
             print(url)
         except exceptions.InvalidSessionIdException as g:
             print('session error: ', g)
-        time.sleep(5)
+        time.sleep(10)
         print(f"{date_range}日前時間：", date_range_ago)
         try:
             last_height = browser.execute_script("return document.body.scrollHeight")
@@ -60,15 +61,21 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
                 except:
                     print(traceback.format_exc())
                     pass
-                time.sleep(3)
+                time.sleep(5)
                 browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(3)
+                time.sleep(5)
                 new_height = browser.execute_script("return document.body.scrollHeight")
-                last_date = soup.find_all('a',
+                try:
+
+                    last_date = soup.find_all('a',
                                           class_='x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm')[
-                    -1].text
-                last_date = post_date_transfer(last_date)
-                print("current window bottom article date: ", last_date)
+                        -1].text
+                    last_date = post_date_transfer(last_date)
+                    print("current window bottom article date: ", last_date)
+                except:
+                    print('no date data fnd')
+                    break
+
                 if new_height == last_height:
                     print("no more article,shut down")
                     break
@@ -83,16 +90,15 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
             soup_extend = BeautifulSoup(html_extend, "lxml")
 
             divs = soup_extend.find_all('div', class_='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z')
-            time.sleep(1)
+            time.sleep(5)
             browser.close()
             for div in divs:
                 try:
                     title = div.find('h2', class_='x1heor9g x1qlqyl8 x1pd3egz x1a2a7pz x1gslohp x1yc453h').text
                     post_date = div.find('a',
                                          class_='x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm').text
-                    post_date = post_date_transfer(post_date)
-                    post_date = datetime.strptime(post_date.strftime("%Y-%m-%dT%H:%M:%S"),
-                                                  "%Y-%m-%dT%H:%M:%S").isoformat()
+                    post_date = post_date_transfer(post_date).isoformat()
+
                     try:
                         content = div.find('div', class_='x1iorvi4 x1pi30zi x1swvt13 x1l90r2v').text
                     except:
@@ -108,18 +114,18 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
                         pass
 
                     try:
-                        comment_count = int(div.find_all('div',
-                                                         class_='x9f619 x1n2onr6 x1ja2u2z x78zum5 xdt5ytf x2lah0s x193iq5w xeuugli xg83lxy x1h0ha7o x10b6aqq x1yrsyyn')[
-                                                0].find(
+                        comment_count = div.find_all('div',
+                                                     class_='x9f619 x1n2onr6 x1ja2u2z x78zum5 xdt5ytf x2lah0s x193iq5w xeuugli xg83lxy x1h0ha7o x10b6aqq x1yrsyyn')[
+                            0].find(
                             'span',
-                            class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x xudqn12 x3x7a5m x6prxxf xvq8zen xo1l8bm xi81zsa').text)
+                            class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x xudqn12 x3x7a5m x6prxxf xvq8zen xo1l8bm xi81zsa').text
                     except:
                         comment_count = None
                         pass
 
                     fb_post_dict = {
-                        "post_name": title,
-                        "post_date": post_date,
+                        "title": title,
+                        "date": post_date,
                         "content": content,
                         "like_count": like_count,
                         "comment_count": comment_count,
@@ -175,7 +181,7 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
                     print(traceback.format_exc())
                     pass
 
-                time.sleep(2)
+                time.sleep(5)
 
 
         except Exception:
@@ -237,74 +243,80 @@ def getBack(browser):
 
 
 def post_date_transfer(input_date: str) -> date:
-    if '小時' in input_date:
-        hour = int(input_date.split('小時')[0])
-        post_date = datetime.now() - timedelta(hours=hour)
+    if 'm' in input_date:
+        mins = int(input_date.split('m')[0])
+        post_date = (datetime.now() - timedelta(minutes=mins))
         return post_date
 
-    if '天' in input_date:
-        day = int(input_date.split('天')[0])
-        post_date = datetime.today() - timedelta(day)
+    if 'h' in input_date:
+        hour = int(input_date.split('h')[0])
+        post_date = (datetime.now() - timedelta(hours=hour))
         return post_date
-    if '月' and '日' and not '年' in input_date:
 
-        if '下午' in input_date:
-            year = date.today().year
-            month = int(input_date.split('月')[0])
-            day = int(input_date.split('日')[0].split('月')[1])
-            hour = int(input_date.split('下午')[1].split(':')[0]) + 12
-            if hour > 23:
-                hour = int(input_date.split('下午')[1].split(':')[0])
-            mins = int(input_date.split('下午')[1].split(':')[1])
-            post_date = datetime(year, month, day, hour, mins)
-            return post_date
-        if '上午' in input_date:
-            year = date.today().year
-            month = int(input_date.split('月')[0])
-            day = int(input_date.split('日')[0].split('月')[1])
-            hour = int(input_date.split('上午')[1].split(':')[0])
-            mins = int(input_date.split('上午')[1].split(':')[1])
-            post_date = datetime(year, month, day, hour, mins)
-            return post_date
-        else:
-            year = date.today().year
-            month = int(input_date.split('月')[0])
-            day = int(input_date.split('日')[0].split('月')[1])
-            post_date = datetime(year, month, day)
-            return post_date
-    if '月' and '日' and '年' in input_date:
-        year = int(input_date.split('年')[0])
-        month = int(input_date.split('月')[0].split('年')[1])
-        day = int(input_date.split('日')[0].split('月')[1])
-        post_date = datetime(year, month, day)
+    elif 'd' in input_date:
+        day = int(input_date.split('d')[0])
+        post_date = (datetime.today() - timedelta(days=day))
         return post_date
+
+    else:
+        try:
+            now = datetime.now()
+            year = now.year
+            post_date = datetime.strptime(input_date + str(year), '%B %d%Y')
+            return post_date
+
+        except ValueError:
+            try:
+                now = datetime.now()
+                year = now.year
+                post_date = datetime.strptime(input_date + str(year), '%B %d at %I:%M %p%Y')
+                return post_date
+
+            except ValueError:
+                try:
+                    post_date = datetime.strptime(input_date, '%B %d, %Y')
+                    return post_date
+                except ValueError:
+                    try:
+                        post_date = datetime.strptime(input_date, '%d %B at %H:%M%Y')
+                        return post_date
+                    except ValueError:
+                        now = datetime.now()
+                        year = now.year
+                        post_date = datetime.strptime(input_date + str(year), '%d %B at %H:%M%Y')
+                        return post_date
 
 
 def comment_date_transfer(input_date: str):
-    if '分鐘' in input_date:
-        mins = int(input_date.split('分鐘')[0])
+    if 'm' in input_date:
+        mins = int(input_date.split('m')[0])
         post_date = (datetime.now() - timedelta(minutes=mins))
         return post_date
-    if '小時' in input_date:
-        hour = int(input_date.split('小時')[0])
+    if 'h' in input_date:
+        hour = int(input_date.split('h')[0])
         post_date = datetime.now() - timedelta(hours=hour)
         return post_date
-    if '天' in input_date:
-        day = int(input_date.split('天')[0])
+    if 'd' in input_date:
+        day = int(input_date.split('d')[0])
         post_date = (datetime.now() - timedelta(days=day))
         return post_date
-    if '週' in input_date:
-        week = int(input_date.split('週')[0])
+    if 'w' in input_date:
+        week = int(input_date.split('w')[0])
         post_date = (datetime.now() - timedelta(weeks=week))
         return post_date
-    if '年' in input_date:
-        year = int(input_date.split('年')[0])
+    if 'y' in input_date:
+        year = int(input_date.split('y')[0])
         post_date = (datetime.now() - relativedelta(years=year))
         return post_date
 
 
 if __name__ == '__main__':
-    url_list = ['https://www.facebook.com/ChubbLifeTaiwan']
+    url_list = ['https://www.facebook.com/ChubbLifeTaiwan',  # 安達人壽
+                'https://www.facebook.com/TGLlife',  # 全球人壽
+                'https://www.facebook.com/Cathaylife',  # 國泰人壽
+                'https://www.facebook.com/NanShanLifeInsurance',  # 南山人壽
+                'https://www.facebook.com/healthnews.tw'  # 健康醫療網
+                ]
     date_range = 30
     result_lists = facebook_crawl(url_list, date_range)
     print(result_lists[0])

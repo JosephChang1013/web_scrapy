@@ -12,6 +12,7 @@ class BaseResponse(BaseModel):
     dict_data: Optional[dict]
     result: Optional[tuple]
     json_data: Optional[list]
+    keyword_list: Optional[list]
 
 
 class BqAccountRawText(BaseModel):
