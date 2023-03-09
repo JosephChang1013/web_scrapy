@@ -29,6 +29,7 @@ app.include_router(tvbsnews_router, prefix=prefix, tags=['schedule'])
 app.include_router(dcard_router, prefix=prefix, tags=['schedule'])
 app.include_router(ptt_router, prefix=prefix, tags=['schedule'])
 app.include_router(facebook_router, prefix=prefix, tags=['schedule'])
+
 app.include_router(tokenization_router, prefix=prefix, tags=['tokenization'])
 
 

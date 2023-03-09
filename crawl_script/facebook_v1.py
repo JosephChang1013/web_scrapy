@@ -26,7 +26,7 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
     date_range_ago = datetime.today() - timedelta(days=date_range)
     for url in urls:
         options = Options()
-        # options.add_argument('headless')
+        options.add_argument('headless')
         options.add_experimental_option('prefs', {'intl.accept_languages': 'en,en_US'})
         options.add_argument('--disable-infobars')
         options.add_argument('--disable-dev-shm-usage')
@@ -68,7 +68,7 @@ def facebook_crawl(urls: list, date_range: int) -> List[Dict[str, Any]]:
                 try:
 
                     last_date = soup.find_all('a',
-                                          class_='x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm')[
+                                              class_='x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm')[
                         -1].text
                     last_date = post_date_transfer(last_date)
                     print("current window bottom article date: ", last_date)
@@ -195,16 +195,24 @@ def click_more_content(browser):
     if len(more_btn) > 0:
         count = 0
         for i in more_btn:
+
+            # 創建一個 ActionChains 物件，用於模擬滑鼠操作
             action = ActionChains(browser)
+
+            # 嘗試模擬滑鼠移動到元素位置並點擊
             try:
                 action.move_to_element(i).click.perform()
                 count += 1
+
+            # 如果上面的操作失敗，嘗試使用 JavaScript 模擬點擊
             except:
                 try:
                     browser.execute_script("arguments[0].click();", i)
                     count += 1
                 except:
                     continue
+
+        # 如果有元素點擊成功但還有元素沒有被點擊成功，輸出錯誤訊息
         if len(more_btn) - count > 0:
             print('moreComment issue:', len(more_btn) - count)
         time.sleep(1)

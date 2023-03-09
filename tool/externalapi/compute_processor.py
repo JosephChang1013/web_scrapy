@@ -55,12 +55,12 @@ def create_an_instance(
         main_filename: str,
         description='',
         disk_size=10,
-        disk_source_image='projects/debian-cloud/global/images/debian-11-bullseye-v20220920',
+        disk_source_image='projects/debian-cloud/global/images/debian-11-bullseye-v20230206',
         label='compute_engine_processor',
-        machine_type='e2-micro',
+        machine_type='e2-small',
         network_link='global/networks/default',
         region='asia-east1',
-        zone='asia-east1-c',
+        zone='asia-east1-a',
 ):
     operation_client = compute_v1.ZoneOperationsClient()
 
@@ -83,7 +83,9 @@ def create_an_instance(
     metadata = compute_v1.Metadata()
     metadata.items = [items]
 
-    network_interface = compute_v1.NetworkInterface()
+    network_interface = compute_v1.NetworkInterface(access_configs=[
+        compute_v1.AccessConfig(name='External NAT', type_='ONE_TO_ONE_NAT')
+    ])
     network_interface.name = network_link
 
     reservation_affinity = compute_v1.ReservationAffinity()
@@ -150,9 +152,6 @@ def list_all_instances(
         instance_name=None,
         program_label=None,
 ) -> List[compute_v1.Instance]:
-
-
-
     """
     status: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED
     """

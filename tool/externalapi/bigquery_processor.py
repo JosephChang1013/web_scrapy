@@ -12,10 +12,16 @@ BIGQUERY_CLIENT = bigquery.Client()
 
 def big_query_execute(query_list: list[str]) -> list[list]:
     results = []
+
+    # Loop through each query in the input list.
     for query in query_list:
+
+        # Submit the query to the BigQuery API and store the resulting job object.
         query_job = BIGQUERY_CLIENT.query(query)
         result = query_job.result()
         results.append(result)
+
+    # Return a list of lists containing the rows of each query result.
     return [[row for row in i] for i in results]
 
 
@@ -41,9 +47,14 @@ def bq_log_metrics(log_datetime: datetime, domain: str, rows: List[Dict[str, Any
 
 
 def query_script(start_date: datetime, end_date: datetime, domain: list[str]) -> list[str]:
+
+    # Define the table ID using variables from the global scope.
     table_id = f'{GCP_PROJECT_ID}.{DATASET_TA_SYSTEM}.{TABLE_AD_ACCOUNT_RAW_TEXTS}_*'
+
     querys = []
     for d in domain:
+
+        # If the domain is "ptt", generate a query that includes ordering by like count.
         if d == 'ptt':
             query = f'''
             
@@ -86,8 +97,12 @@ def bq_dcard_metrics(log_datetime: datetime, domain: str, rows: List[Dict[str, A
         ),
         write_disposition=bigquery.job.WriteDisposition.WRITE_TRUNCATE,
     )
+
+    # Load the data into the table using the BigQuery client and the job configuration.
     job = BIGQUERY_CLIENT.load_table_from_json(rows, table_id, job_config=job_config)
-    job.result()  # Waits for the job to complete.
+    job.result()
+
+    # Log a message indicating that the data was loaded successfully.
     logging.info(f'loaded {len(rows)} rows and {len(SCHEMA_AD_ACCOUNT_RAW_TEXTS)} columns to {table_id}')
 
 
@@ -108,7 +123,7 @@ def bq_ptt_metrics(log_datetime: datetime, domain: str, rows: List[Dict[str, Any
         write_disposition=bigquery.job.WriteDisposition.WRITE_TRUNCATE,
     )
     job = BIGQUERY_CLIENT.load_table_from_json(rows, table_id, job_config=job_config)
-    job.result()  # Waits for the job to complete.
+    job.result()
     logging.info(f'loaded {len(rows)} rows and {len(SCHEMA_AD_ACCOUNT_RAW_TEXTS)} columns to {table_id}')
 
 
@@ -129,5 +144,5 @@ def bq_facebook_metrics(log_datetime: datetime, domain: str, rows: List[Dict[str
         write_disposition=bigquery.job.WriteDisposition.WRITE_TRUNCATE,
     )
     job = BIGQUERY_CLIENT.load_table_from_json(rows, table_id, job_config=job_config)
-    job.result()  # Waits for the job to complete.
+    job.result()
     logging.info(f'loaded {len(rows)} rows and {len(SCHEMA_AD_ACCOUNT_RAW_TEXTS)} columns to {table_id}')

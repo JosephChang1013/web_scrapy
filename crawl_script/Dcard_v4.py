@@ -19,29 +19,33 @@ domain = DomainName.DCARD.value
 
 
 def Dcard_crawl():
-    # 天數
+    # set variables for data retrieval
     three_date_ago = (date.today() - timedelta(days=3))
-    #  筆數
+
+    # set the limit of posts to retrieve
     limit = '200'
 
     url = f'https://pttbrain-api.herokuapp.com/api/dcard/metric/hot-posts?since={three_date_ago}&limit={limit}&offset=0'
     result_list: List[Dict[str, Any]] = list()
     user_agent = UserAgent().random
-    options = Options()
-    options.add_argument('headless')
+    options = Options()  # set options for the browser
+    options.add_argument('headless')  # run browser in headless mode
     options.add_argument('--disable-infobars')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--no-sandbox')
-    options.add_argument('--user-agent=%s' % user_agent)
+    options.add_argument('--user-agent=%s' % user_agent)   # set the user agent for the browser
     options.add_argument('--remote-debugging-port=9222')
+
+    # create a Chrome browser instance
     browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     print("Current session is {}".format(browser.session_id))
+
     try:
-        browser.get(url)
+        browser.get(url)  # navigate to the url
     except exceptions.InvalidSessionIdException as g:
         print(g)
     time.sleep(2)
-    html_source = browser.page_source
+    html_source = browser.page_source  # retrieve the page source
     soup = BeautifulSoup(html_source, "lxml")
     r = soup.find('pre').text
     chapters = json.loads(r)
@@ -53,9 +57,12 @@ def Dcard_crawl():
         print('content:', chapter['content'])
         print('like:', chapter['num_reactions'])
         id_ = chapter['id']
+
+        # store the post title, date, content, link ... in dcard_dict
         dcard_dict = {
             "title": chapter['title'],
-            "date": datetime.strptime(chapter['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=None).isoformat()[:-7],
+            "date": datetime.strptime(chapter['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=None).isoformat()[
+                    :-7],
             "content": chapter['content'],
             "link": f"https://www.dcard.tw/f/talk/p/{id_}",
             "category": chapter['forum']['name'],
@@ -98,4 +105,6 @@ def Dcard_crawl():
 
 if __name__ == '__main__':
     result_lists = Dcard_crawl()
+
+    # Log the results to BigQuery
     bq_dcard_metrics(today, domain, result_lists)

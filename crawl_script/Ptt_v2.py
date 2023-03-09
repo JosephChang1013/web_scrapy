@@ -44,9 +44,8 @@ def ptt_crawl():
     try:
         last_div = None
         like_count = None
-        go = True
         last_height = browser.execute_script("return document.body.scrollHeight")
-        while go:
+        while num < 10:
             html_source = browser.page_source
             soup = BeautifulSoup(html_source, "lxml")
 

@@ -26,6 +26,8 @@ def start_scraper_ettoday_v3():
     month = today.month
     day = today.day
     date_ranges = 1
+
+    # set the initial URL and date range
     url = f"https://www.ettoday.net/news/news-list-{year}-{month}-{day}-0.htm"
     date_range_ago = (datetime.now() - timedelta(days=date_ranges))
     result_list: List[Dict[str, Any]] = list()
@@ -44,6 +46,7 @@ def start_scraper_ettoday_v3():
     time.sleep(2)
     print(f"{date_ranges}日前時間：", date_range_ago)
     try:
+        # scroll to the bottom of the page to load more content
         last_height = browser.execute_script("return document.body.scrollHeight")
         go = True
         while go:
@@ -52,12 +55,15 @@ def start_scraper_ettoday_v3():
             html_source = browser.page_source
             soup = BeautifulSoup(html_source, "lxml")
             new_height = browser.execute_script("return document.body.scrollHeight")
-            # 已經到頁面底部
+
+            # check if the page has reached the bottom
             if new_height == last_height:
                 print("已經到頁面最底部，程序停止")
                 break
             last_height = new_height
             time.sleep(1)
+
+            # iterate through each article and check if it is within the date range
             for f in soup.find(class_="part_list_2").find_all('h3'):
                 if datetime.strptime(f.find(class_="date").text, '%Y/%m/%d %H:%M') < date_range_ago:
                     print(f"已經超出{date_range_ago}，程序停止")
